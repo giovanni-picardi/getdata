@@ -6,7 +6,7 @@
 rawFilename <- "getdata-projectfiles-UCI HAR Dataset.zip"
 
 # Download only if not already done
-if (!file.exists(rawFilename)) {
+if (!file.exists(rawFilename) & !file.exists("UCI HAR Dataset")) {
     # URL provided for the Course Project
     rawUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 
@@ -89,9 +89,18 @@ subjtrain <- read.table("./train/subject_train.txt")
 subj <- rbind(subjtest, subjtrain)
 
 # Add "Subject" column to data (subject IDs as factors)
-data$Subject <- as.factor(as.matrix(subj))
+data$Subject <- as.factor(data.matrix(subj))
+
+# Melt and cast data in order to store the means of features for each
+# couple of Activity and Subject
+library(reshape2)
+avgdata <- melt(data, id=c("Activity","Subject"), measure.vars=(names(data)[1:79]))
+avgdata <- dcast(avgdata, Activity + Subject ~ variable, mean)
 
 # Clean unnecessary objects and move up in the directory tree
 rm(list = c("features", "Xtest", "Xtrain", "ytest", "ytrain", "y", "activities",
             "subjtest", "subjtrain", "subj"))
 setwd("..")
+
+# Write avgdata as a text file
+write.table(avgdata, file="avgdata.txt", row.names = FALSE)
