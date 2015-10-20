@@ -91,11 +91,14 @@ subj <- rbind(subjtest, subjtrain)
 # Add "Subject" column to data (subject IDs as factors)
 data$Subject <- as.factor(data.matrix(subj))
 
-# Melt and cast data in order to store the means of features for each
+# Melt and cast data in order to store in avgdata the means of features for each
 # couple of Activity and Subject
 library(reshape2)
 avgdata <- melt(data, id=c("Activity","Subject"), measure.vars=(names(data)[1:79]))
 avgdata <- dcast(avgdata, Activity + Subject ~ variable, mean)
+
+# Apply prefix "Average_" to average measurements columns of avgdata
+names(avgdata)[3:81] <- paste0("Average_", names(avgdata)[3:81])
 
 # Clean unnecessary objects and move up in the directory tree
 rm(list = c("features", "Xtest", "Xtrain", "ytest", "ytrain", "y", "activities",
